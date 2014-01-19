@@ -1,4 +1,4 @@
-#!/bin/perl
+#!/usrs/bin/perl
 
 my %species = (
 
@@ -53,14 +53,14 @@ petMar1 => 'F',
 ## OPEN THE RESPECTIVE FILES;
 
 for my $file  (keys %species)
-{	
+{
 	no strict 'refs';
-#	print "FILE IS $file\n";
+    #	print "FILE IS $file\n";
 	my $fileName = $file . "file";
-
-#	print "Filename = $fileName\n";
+    
+    #	print "Filename = $fileName\n";
 	open($file,">",$fileName) or die "Sorry cant open $file";
-
+    
 }
 
 
@@ -73,29 +73,125 @@ while (<FLE>)
 	
 	if ($_ =~ />/)
 	{
-	#print $_;
+        #print $_;
+        
+        @header1 = split('_',$_);
+        #print  " $out[2] \n";
+        $species = $header1[2];
+        
+        @header2 = split(/\s+/,$_);
+        
+        my $chr;
+        my $start;
+        my $end;
+        my $strand;
+        my $position;
+        
+        if (exists $header2[4])
+        {
+            
+            print $header2[4]."\n";
+            
+            $coordinates = $header2[4];
+            ($chr, $coord) = split(/\:/,$coordinates);
+            
+            
+            ($start, $end) = split ("-",$coord);
+            if ($end =~ m/\w+\+/)
+            {
+                $strand = "+";
+                $position = $start;
+                
+                
+            }
+            else
+            {
+                $strand = "-";
+                $position = $end;
+                
+            }
+            
+            
+        }
+        else
+        {
+            $strand = "x";
+            $chr = "-";
+            $postion = "-";
+        }
+        
+        
+        
+        
+        
+        
+        my $length = $header2[1];
+        
+        
+        
+        
+        #print "$chr $start $end \n";
+        
+        
+        ### THIS PRINTS OUT THE HEADER DATA
+        if (exists $header2[4])
+        {
+            #		print "$species $chr $start $end \n";
+        }
+        else
+        {
+            #		print "$species $chr - -\n";
+            
+        }
+        
+        
+        
+        
+        
+        $nextLine = <FLE>;
+        #print $nextLine;
+        
+        
+        #print "$nextLine \n";
+        #print "$length\n";
+        
+        
+        # print "$position \n";
+        my $i= 0;
+        while ($i < $length)
+        {
+            my $nuc = substr($nextLine,$i,1);
+            if ($nuc =~ "-")
+            {
+				print $species "$species $chr $nuc - $strand\n";
+				$i ++;
+            }
+            else
+            {
+                print $species "$species $chr $nuc $position $strand\n";	
+                if ($strand eq "+")
+                {
+                    $position = $position+1;
+                }	
+                elsif ($strand eq "-")
+                {
+                    $position = $position -1;
+                }
+                
+                
+                $i ++;
+            }
+            
+        }
+        
+        
+        
+    }
 	
-	@header1 = split('_',$_);
-	#print  " $out[2] \n";
-	$species = $header1[2];
+    
+    
 	
-	@header2 = split(/\s+/,$_);
-	$coordinates = $header2[4];
-	
-	my ($chr, $coord) = split(/\:/,$coordinates);
-	
-	if (!($chr =~ m/\w+/))
-	{
-		$chr = "-";
-	}
-	
-	
-	my ($start, $end) = split ("-",$coord);
-	
-	my $length = $header2[1];
-	
-	
-	$positive = 0;
+}	$positive = 0;
 	if ($end =~ m/\w+\+/)
 	{
 		$positive = 1;
